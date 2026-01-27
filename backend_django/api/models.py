@@ -50,6 +50,7 @@ class Contractor(models.Model):
     )
     total_complaints = models.IntegerField(default=0, db_column='totalComplaints')
     total_projects = models.IntegerField(default=0, db_column='totalProjects')
+    qr_code = models.TextField(null=True, blank=True, db_column='qrCode')
     created_at = models.DateTimeField(auto_now_add=True, db_column='createdAt')
     updated_at = models.DateTimeField(auto_now=True, db_column='updatedAt')
     
@@ -58,6 +59,10 @@ class Contractor(models.Model):
     
     def __str__(self):
         return self.name
+    
+    def get_qr_url(self):
+        """Get the public URL for this contractor's QR code page"""
+        return f"http://localhost:3000/contractor/{self.contractor_id}/feedback"
 
 
 class RoadProject(models.Model):

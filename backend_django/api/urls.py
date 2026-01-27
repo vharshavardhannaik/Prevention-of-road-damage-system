@@ -25,6 +25,16 @@ urlpatterns = [
     path('contractors/<int:contractor_id>/performance', views_contractors.contractor_performance, name='contractor_performance'),
     path('contractors/performance/dashboard', views_contractors.contractor_performance_dashboard, name='contractor_performance_dashboard'),
     
+    # QR Code endpoints
+    path('contractors/generate-all-qr', views_contractors.generate_all_contractor_qr, name='generate_all_contractor_qr'),
+    path('contractors/<str:contractor_id>/qr/generate', views_contractors.generate_contractor_qr, name='generate_contractor_qr'),
+    path('contractors/<str:contractor_id>/qr', views_contractors.get_contractor_qr, name='get_contractor_qr'),
+    
+    # Public feedback endpoints (no auth required)
+    path('public/contractor/<str:contractor_id>', views_contractors.get_contractor_public_info, name='get_contractor_public_info'),
+    path('public/contractor/<str:contractor_id>/rating', views_contractors.submit_public_rating, name='submit_public_rating'),
+    path('public/contractor/<str:contractor_id>/complaint', views_contractors.submit_public_complaint, name='submit_public_complaint'),
+    
     # Complaint endpoints
     path('complaints', views_complaints_roads.complaints, name='complaints'),  # GET, POST
     path('complaints/<int:road_id>', views_complaints_roads.complaint_by_road, name='complaint_by_road'),

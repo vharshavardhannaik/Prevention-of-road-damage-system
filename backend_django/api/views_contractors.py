@@ -3,6 +3,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.utils import timezone
+import qrcode
+import io
+import base64
 
 from .models import Contractor, RoadProject, Complaint, Rating
 from .utils import (
@@ -215,3 +218,234 @@ def contractor_performance_dashboard(request):
         
     except Exception as e:
         return Response({'error': 'Internal server error'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def generate_all_contractor_qr(request):
+    """Generate QR codes for all contractors"""
+    try:
+        contractors = Contractor.objects.all()
+        generated_count = 0
+        
+        for contractor in contractors:
+            # Generate QR code URL
+            qr_url = contractor.get_qr_url()
+            
+            # Generate QR code
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(qr_url)
+            qr.make(fit=True)
+            
+            # Create image
+            img = qr.make_image(fill_color="black", back_color="white")
+            
+            # Convert to base64
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            img_str = base64.b64encode(buffer.getvalue()).decode()
+            
+            # Save QR code to contractor
+            contractor.qr_code = f"data:image/png;base64,{img_str}"
+            contractor.save()
+            generated_count += 1
+        
+        return Response({
+            'message': f'Successfully generated QR codes for {generated_count} contractors',
+            'generated': generated_count,
+            'total': contractors.count()
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def generate_contractor_qr(request, contractor_id):
+    """Generate QR code for a specific contractor"""
+    try:
+        contractor = Contractor.objects.get(contractor_id=contractor_id)
+        
+        # Generate QR code URL
+        qr_url = contractor.get_qr_url()
+        
+        # Generate QR code
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(qr_url)
+        qr.make(fit=True)
+        
+        # Create image
+        img = qr.make_image(fill_color="black", back_color="white")
+        
+        # Convert to base64
+        buffer = io.BytesIO()
+        img.save(buffer, format='PNG')
+        img_str = base64.b64encode(buffer.getvalue()).decode()
+        
+        # Save QR code to contractor
+        contractor.qr_code = f"data:image/png;base64,{img_str}"
+        contractor.save()
+        
+        return Response({
+            'contractorId': contractor.contractor_id,
+            'name': contractor.name,
+            'qrCode': contractor.qr_code,
+            'qrUrl': qr_url
+        }, status=status.HTTP_200_OK)
+        
+    except Contractor.DoesNotExist:
+        return Response({'error': 'Contractor not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_contractor_qr(request, contractor_id):
+    """Get QR code for a specific contractor"""
+    try:
+        contractor = Contractor.objects.get(contractor_id=contractor_id)
+        
+        # Generate QR if it doesn't exist
+        if not contractor.qr_code:
+            qr_url = contractor.get_qr_url()
+            
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_L,
+                box_size=10,
+                border=4,
+            )
+            qr.add_data(qr_url)
+            qr.make(fit=True)
+            
+            img = qr.make_image(fill_color="black", back_color="white")
+            buffer = io.BytesIO()
+            img.save(buffer, format='PNG')
+            img_str = base64.b64encode(buffer.getvalue()).decode()
+            
+            contractor.qr_code = f"data:image/png;base64,{img_str}"
+            contractor.save()
+        
+        return Response({
+            'contractorId': contractor.contractor_id,
+            'name': contractor.name,
+            'qrCode': contractor.qr_code,
+            'qrUrl': contractor.get_qr_url()
+        }, status=status.HTTP_200_OK)
+        
+    except Contractor.DoesNotExist:
+        return Response({'error': 'Contractor not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_contractor_public_info(request, contractor_id):
+    """Get public contractor information for feedback page"""
+    try:
+        contractor = Contractor.objects.get(contractor_id=contractor_id)
+        
+        return Response({
+            'contractorId': contractor.contractor_id,
+            'name': contractor.name,
+            'currentRating': contractor.current_rating,
+            'totalComplaints': contractor.total_complaints,
+            'totalProjects': contractor.total_projects,
+        }, status=status.HTTP_200_OK)
+        
+    except Contractor.DoesNotExist:
+        return Response({'error': 'Contractor not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def submit_public_rating(request, contractor_id):
+    """Submit a public rating for a contractor (no auth required)"""
+    try:
+        contractor = Contractor.objects.get(contractor_id=contractor_id)
+        
+        rating_value = request.data.get('ratingValue')
+        comment = request.data.get('comment', '')
+        
+        if not rating_value or rating_value < 1 or rating_value > 5:
+            return Response({'error': 'Rating must be between 1 and 5'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create rating
+        rating = Rating.objects.create(
+            contractor=contractor,
+            rating_value=rating_value,
+            user_email='public@feedback.com',
+            user_id='public',
+            comment=comment
+        )
+        
+        # Recalculate contractor's average rating
+        all_ratings = Rating.objects.filter(contractor=contractor)
+        avg_rating = sum(r.rating_value for r in all_ratings) / len(all_ratings) if all_ratings else 5.0
+        
+        contractor.current_rating = avg_rating
+        contractor.save()
+        
+        return Response({
+            'message': 'Rating submitted successfully',
+            'newAverageRating': contractor.current_rating
+        }, status=status.HTTP_201_CREATED)
+        
+    except Contractor.DoesNotExist:
+        return Response({'error': 'Contractor not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def submit_public_complaint(request, contractor_id):
+    """Submit a public complaint for a contractor (no auth required)"""
+    try:
+        contractor = Contractor.objects.get(contractor_id=contractor_id)
+        
+        description = request.data.get('description')
+        location = request.data.get('location', '')
+        
+        if not description:
+            return Response({'error': 'Description is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create complaint
+        complaint = Complaint.objects.create(
+            contractor=contractor,
+            user_email='public@feedback.com',
+            user_id='public',
+            description=description,
+            location=location,
+            status='Open'
+        )
+        
+        # Increment contractor's complaint count
+        contractor.total_complaints += 1
+        contractor.save()
+        
+        return Response({
+            'message': 'Complaint submitted successfully',
+            'complaintId': complaint.complaint_id
+        }, status=status.HTTP_201_CREATED)
+        
+    except Contractor.DoesNotExist:
+        return Response({'error': 'Contractor not found'}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test QR Code - ABC Construction</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            max-width: 500px;
+        }
+        h1 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+        .contractor-id {
+            background: #e0e7ff;
+            color: #4338ca;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .qr-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 15px;
+        }
+        #qrcode {
+            display: inline-block;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+        .url {
+            margin-top: 20px;
+            padding: 15px;
+            background: #fef3c7;
+            border: 2px dashed #f59e0b;
+            border-radius: 10px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .info {
+            margin-top: 20px;
+            text-align: left;
+            line-height: 1.8;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .label {
+            font-weight: bold;
+            color: #6b7280;
+        }
+        .value {
+            color: #111827;
+            font-weight: 600;
+        }
+        .instruction {
+            margin-top: 20px;
+            padding: 15px;
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            border-radius: 5px;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ ABC Construction Ltd</h1>
+        <div class="contractor-id">ID: CONT001</div>
+        
+        <div class="info">
+            <div class="info-item">
+                <span class="label">📧 Email:</span>
+                <span class="value">abc@construction.com</span>
+            </div>
+            <div class="info-item">
+                <span class="label">⭐ Rating:</span>
+                <span class="value">4.5/5.0</span>
+            </div>
+            <div class="info-item">
+                <span class="label">🚧 Projects:</span>
+                <span class="value">5</span>
+            </div>
+            <div class="info-item">
+                <span class="label">⚠️ Complaints:</span>
+                <span class="value">2</span>
+            </div>
+        </div>
+
+        <div class="qr-container">
+            <h3>📱 Scan This QR Code</h3>
+            <div id="qrcode"></div>
+        </div>
+
+        <div class="url">
+            <strong>URL:</strong><br>
+            http://localhost:3000/contractor/CONT001/feedback
+        </div>
+
+        <div class="instruction">
+            <strong>📌 Instructions:</strong><br>
+            1. Scan this QR code with your phone<br>
+            2. It will open the contractor feedback page<br>
+            3. You'll see all contractor details<br>
+            4. Citizens can rate & submit complaints
+        </div>
+    </div>
+
+    <script>
+        // Generate QR Code with correct URL
+        const qrcode = new QRCode(document.getElementById("qrcode"), {
+            text: "http://localhost:3000/contractor/CONT001/feedback",
+            width: 250,
+            height: 250,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+    </script>
+</body>
+</html>

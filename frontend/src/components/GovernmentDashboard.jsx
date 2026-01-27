@@ -16,8 +16,8 @@ const GovernmentDashboard = () => {
     setLoading(true);
     try {
       const [contractorsRes, complaintsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/contractors'),
-        axios.get('http://localhost:5000/api/complaints')
+        axios.get('http://localhost:8000/api/contractors'),
+        axios.get('http://localhost:8000/api/complaints')
       ]);
       setContractors(contractorsRes.data.contractors || []);
       setComplaints(complaintsRes.data.complaints || []);

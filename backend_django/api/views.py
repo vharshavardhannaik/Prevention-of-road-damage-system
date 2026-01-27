@@ -1,5 +1,5 @@
 from rest_framework import status
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.utils import timezone
@@ -459,6 +459,7 @@ def health_check(request):
 # Combined view handlers for multiple HTTP methods
 @api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
+@authentication_classes([])  # Disable authentication for this endpoint
 def admin_roads(request):
     """Handle GET and POST requests for admin roads"""
     if request.method == 'GET':
@@ -646,6 +647,7 @@ def contractors(request):
                         'totalProjects': len(projects),
                         'riskLevel': 'High' if avg_rating < 2 else 'Medium' if avg_rating < 3.5 else 'Low',
                         'recommendation': 'Review required' if avg_rating < 2 else 'Conditional approval' if avg_rating < 3.5 else 'Approve for future contracts',
+                        'hasQRCode': bool(contractor.qr_code),
                         'createdAt': contractor.created_at.isoformat() if hasattr(contractor, 'created_at') and contractor.created_at else None
                     })
                 except Exception as inner_e:

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contractor QR Codes - Smart Road System</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #f0f0f0;
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        .card-header {
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .contractor-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .contractor-id {
+            color: #666;
+            font-size: 0.9rem;
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .info-section {
+            margin-bottom: 20px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .rating {
+            color: #f39c12;
+        }
+
+        .qr-section {
+            text-align: center;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .qr-code {
+            display: inline-block;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            margin: 10px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .feedback-url {
+            margin-top: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 5px;
+            border: 2px dashed #667eea;
+            word-break: break-all;
+        }
+
+        .feedback-url a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .feedback-url a:hover {
+            text-decoration: underline;
+        }
+
+        .scan-instruction {
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        .print-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #667eea;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .print-btn:hover {
+            background: #764ba2;
+            transform: scale(1.05);
+        }
+
+        .stats {
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.15);
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .print-btn, .stats {
+                display: none;
+            }
+            
+            .card {
+                break-inside: avoid;
+                page-break-inside: avoid;
+                box-shadow: none;
+                border: 1px solid #ddd;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ Contractor QR Codes</h1>
+        <p class="subtitle">Smart Road Construction & Monitoring System</p>
+
+        <div class="stats">
+            <h2>📊 System Overview</h2>
+            <div class="stat-grid">
+                <div class="stat-item">
+                    <div class="stat-value">6</div>
+                    <div class="stat-label">Total Contractors</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">34</div>
+                    <div class="stat-label">Total Projects</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">4.2</div>
+                    <div class="stat-label">Avg Rating</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">13</div>
+                    <div class="stat-label">Total Complaints</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid" id="contractorGrid"></div>
+    </div>
+
+    <button class="print-btn" onclick="window.print()">🖨️ Print QR Codes</button>
+
+    <script>
+        const contractors = [
+            {
+                id: 'CONT001',
+                name: 'ABC Construction Ltd',
+                email: 'abc@construction.com',
+                rating: 4.5,
+                projects: 5,
+                complaints: 2
+            },
+            {
+                id: 'CONT002',
+                name: 'XYZ Infrastructure',
+                email: 'xyz@infrastructure.com',
+                rating: 4.8,
+                projects: 8,
+                complaints: 1
+            },
+            {
+                id: 'CONT003',
+                name: 'BuildRight Enterprises',
+                email: 'buildright@enterprise.com',
+                rating: 3.2,
+                projects: 3,
+                complaints: 5
+            },
+            {
+                id: 'CONT004',
+                name: 'RoadMaster Solutions',
+                email: 'roadmaster@solutions.com',
+                rating: 4.9,
+                projects: 12,
+                complaints: 0
+            },
+            {
+                id: 'CONT005',
+                name: 'Premier Roads Inc',
+                email: 'premier@roads.com',
+                rating: 4.0,
+                projects: 6,
+                complaints: 3
+            },
+            {
+                id: '01',
+                name: 'Harshavardhannaik v',
+                email: 'harshavardhannaik@gmail.com',
+                rating: 2.0,
+                projects: 0,
+                complaints: 2
+            }
+        ];
+
+        const grid = document.getElementById('contractorGrid');
+
+        contractors.forEach(contractor => {
+            const feedbackUrl = `http://localhost:3000/contractor/${contractor.id}/feedback`;
+            
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="contractor-name">${contractor.name}</div>
+                    <span class="contractor-id">ID: ${contractor.id}</span>
+                </div>
+
+                <div class="info-section">
+                    <div class="info-row">
+                        <span class="info-label">📧 Email:</span>
+                        <span class="info-value" style="font-size: 0.85rem;">${contractor.email}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">⭐ Rating:</span>
+                        <span class="info-value rating">${contractor.rating}/5.0</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">🚧 Projects:</span>
+                        <span class="info-value">${contractor.projects}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">⚠️ Complaints:</span>
+                        <span class="info-value">${contractor.complaints}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">✅ Success Rate:</span>
+                        <span class="info-value">${contractor.projects > 0 ? Math.round(((contractor.projects - contractor.complaints) / contractor.projects) * 100) : 100}%</span>
+                    </div>
+                    <div class="info-row" style="border-bottom: none; padding-top: 12px;">
+                        <span class="info-label">📊 Performance:</span>
+                        <span class="info-value">
+                            ${contractor.rating >= 4.5 ? '<span style="color: #22c55e; font-weight: bold;">⭐ Excellent</span>' :
+                              contractor.rating >= 3.5 ? '<span style="color: #3b82f6; font-weight: bold;">👍 Good</span>' :
+                              contractor.rating >= 2.5 ? '<span style="color: #eab308; font-weight: bold;">⚠️ Average</span>' :
+                              '<span style="color: #ef4444; font-weight: bold;">📉 Needs Improvement</span>'}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="qr-section">
+                    <h3 style="margin-bottom: 10px; color: #667eea;">📱 Scan to Submit Feedback</h3>
+                    <div class="qr-code" id="qr-${contractor.id}"></div>
+                    <div class="feedback-url">
+                        <a href="${feedbackUrl}" target="_blank">${feedbackUrl}</a>
+                    </div>
+                    <div class="scan-instruction">
+                        Citizens can scan this QR code to rate and submit complaints without login
+                    </div>
+                </div>
+            `;
+
+            grid.appendChild(card);
+
+            // Generate QR Code
+            new QRCode(document.getElementById(`qr-${contractor.id}`), {
+                text: feedbackUrl,
+                width: 200,
+                height: 200,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        });
+    </script>
+</body>
+</html>

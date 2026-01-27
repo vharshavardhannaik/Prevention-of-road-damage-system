@@ -6,6 +6,9 @@ const ContractorDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [sortBy, setSortBy] = useState('rating');
   const [filterRisk, setFilterRisk] = useState('all');
+  const [selectedContractor, setSelectedContractor] = useState(null);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [generatingAll, setGeneratingAll] = useState(false);
 
   useEffect(() => {
     fetchContractors();
@@ -14,12 +17,46 @@ const ContractorDashboard = () => {
   const fetchContractors = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:5000/api/contractors?sortBy=${sortBy}&order=desc`);
+      const response = await axios.get(`http://localhost:8000/api/contractors?sortBy=${sortBy}&order=desc`);
       setContractors(response.data.contractors);
     } catch (error) {
       console.error('Error fetching contractors:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGenerateQR = async (contractor) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/contractors/${contractor.contractorId}/qr`);
+      setSelectedContractor({ ...contractor, qrCode: response.data.qrCode, qrUrl: response.data.qrUrl });
+      setShowQRModal(true);
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      alert('Failed to generate QR code');
+    }
+  };
+
+  const handleGenerateAllQR = async () => {
+    try {
+      setGeneratingAll(true);
+      const response = await axios.post('http://localhost:8000/api/contractors/generate-all-qr');
+      alert(`Successfully generated QR codes for ${response.data.generated} contractors!`);
+      fetchContractors();
+    } catch (error) {
+      console.error('Error generating QR codes:', error);
+      alert('Failed to generate QR codes for all contractors');
+    } finally {
+      setGeneratingAll(false);
+    }
+  };
+
+  const downloadQR = () => {
+    if (selectedContractor && selectedContractor.qrCode) {
+      const link = document.createElement('a');
+      link.href = selectedContractor.qrCode;
+      link.download = `${selectedContractor.contractorId}_QRCode.png`;
+      link.click();
     }
   };
 
@@ -77,7 +114,33 @@ const ContractorDashboard = () => {
                 <option value="all">All Risk Levels</option>
                 <option value="Very Low">Very Low Risk</option>
                 <option value="Low">Low Risk</option>
-                <option value="Medium">Medium Risk</option>
+                
+
+          {/* Generate All QR Codes Button */}
+          <div className="mt-4">
+            <button
+              onClick={handleGenerateAllQR}
+              disabled={generatingAll}
+              className={`w-full ${generatingAll ? 'bg-gray-400' : 'bg-green-600 hover:bg-green-700'} text-white font-semibold py-3 px-6 rounded-lg transition flex items-center justify-center gap-2`}
+            >
+              {generatingAll ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Generating QR Codes...
+                </>
+              ) : (
+                <>
+                  📱 Generate QR Codes for All Contractors
+                </>
+              )}
+            </button>
+            <p className="text-xs text-gray-500 mt-2 text-center">
+              This will create QR codes for all contractors so citizens can scan and provide feedback
+            </p>
+          </div><option value="Medium">Medium Risk</option>
                 <option value="High">High Risk</option>
                 <option value="Very High">Very High Risk</option>
               </select>
@@ -131,8 +194,7 @@ const ContractorDashboard = () => {
                     <th className="px-6 py-4 text-center font-semibold">Complaints</th>
                     <th className="px-6 py-4 text-center font-semibold">Projects</th>
                     <th className="px-6 py-4 text-center font-semibold">Risk Level</th>
-                    <th className="px-6 py-4 text-center font-semibold">Recommendation</th>
-                  </tr>
+                    <th className="px-6 py-4 text-center font-semibold">Recommendation</th>                    <th className="px-6 py-4 text-center font-semibold">QR Code</th>                  </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {filteredContractors.length > 0 ? (
@@ -176,12 +238,25 @@ const ContractorDashboard = () => {
                           <td className="px-6 py-4 text-center">
                             <p className="text-sm font-medium text-gray-700">{contractor.recommendation}</p>
                           </td>
+                          <td className="px-6 py-4 text-center">
+                            <div className="flex flex-col items-center gap-2">
+                              <button
+                                onClick={() => handleGenerateQR(contractor)}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+                              >
+                                📱 View QR
+                              </button>
+                              {contractor.hasQRCode && (
+                                <span className="text-xs text-green-600 font-semibold">✓ QR Generated</span>
+                              )}
+                            </div>
+                          </td>
                         </tr>
                       );
                     })
                   ) : (
                     <tr>
-                      <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan="8" className="px-6 py-8 text-center text-gray-500">
                         No contractors found matching the selected filter.
                       </td>
                     </tr>
@@ -211,6 +286,69 @@ const ContractorDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* QR Code Modal */}
+      {showQRModal && selectedContractor && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">QR Code</h2>
+              <button
+                onClick={() => setShowQRModal(false)}
+                className="text-gray-500 hover:text-gray-700 text-3xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="text-center">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                {selectedContractor.name}
+              </h3>
+              <p className="text-gray-600 mb-6">ID: {selectedContractor.contractorId}</p>
+              
+              <div className="bg-gray-50 p-6 rounded-lg mb-6">
+                <img 
+                  src={selectedContractor.qrCode} 
+                  alt="QR Code" 
+                  className="mx-auto w-64 h-64"
+                />
+              </div>
+              
+              <p className="text-sm text-gray-600 mb-6">
+                Scan this QR code to rate and provide feedback about this contractor
+              </p>
+              
+              <div className="flex gap-4">
+                <button
+                  onClick={downloadQR}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition"
+                >
+                  📥 Download QR Code
+                </button>
+                <button
+                  onClick={() => setShowQRModal(false)}
+                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg font-semibold transition"
+                >
+                  Close
+                </button>
+              </div>
+              
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                <p className="text-xs text-gray-600 font-semibold mb-2">Feedback URL:</p>
+                <a 
+                  href={selectedContractor.qrUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-sm text-blue-600 hover:text-blue-800 break-all"
+                >
+                  {selectedContractor.qrUrl}
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -75,7 +75,7 @@ const AdminDashboard = () => {
 
   const fetchComplaints = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/complaints-roads/complaints');
+      const response = await axios.get('http://localhost:8000/api/complaints');
       setComplaints(response.data.complaints || []);
     } catch (err) {
       console.error('Failed to fetch complaints:', err);
@@ -86,7 +86,7 @@ const AdminDashboard = () => {
     setLoading(true);
     setError(''); // Clear any previous errors
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/roads');
+      const response = await axios.get('http://localhost:8000/api/admin/roads');
       console.log('Fetched roads:', response.data);
       setRoads(response.data.roads || []);
       setError(''); // Clear error on success
@@ -102,7 +102,7 @@ const AdminDashboard = () => {
 
   const fetchContractors = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/contractors');
+      const response = await axios.get('http://localhost:8000/api/contractors');
       setContractors(response.data.contractors);
     } catch (err) {
       console.error('Failed to fetch contractors:', err);
@@ -132,7 +132,7 @@ const AdminDashboard = () => {
 
     try {
       const response = await axios.post(
-        'http://localhost:5000/api/contractors',
+        'http://localhost:8000/api/contractors',
         contractorFormData
       );
 
@@ -164,7 +164,7 @@ const AdminDashboard = () => {
       if (editingId) {
         // Update existing road
         await axios.put(
-          `http://localhost:5000/api/admin/roads/${editingId}`,
+          `http://localhost:8000/api/admin/roads/${editingId}`,
           roadFormData,
           {
             headers: {
@@ -176,7 +176,7 @@ const AdminDashboard = () => {
       } else {
         // Create new road
         await axios.post(
-          'http://localhost:5000/api/admin/roads',
+          'http://localhost:8000/api/admin/roads',
           roadFormData,
           {
             headers: {
@@ -235,7 +235,7 @@ const AdminDashboard = () => {
     try {
       const token = getAuthToken();
       await axios.delete(
-        `http://localhost:5000/api/admin/roads/${deleteTarget}`,
+        `http://localhost:8000/api/admin/roads/${deleteTarget}`,
         {
           headers: {
             Authorization: `Bearer ${token}`

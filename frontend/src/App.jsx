@@ -19,7 +19,7 @@ const App = () => {
 
     setLoading(true);
     try {
-      const response = await axios.get(`http://localhost:5000/api/roads/${qrInput}`);
+      const response = await axios.get(`http://localhost:8000/api/roads/${qrInput}`);
       setRoadData(response.data.road);
       setCurrentPage('complaint');
     } catch (error) {
@@ -191,8 +191,8 @@ const HomePage = ({ onReportClick }) => {
   const fetchStats = async () => {
     try {
       const [roadsRes, contractorsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/roads'),
-        axios.get('http://localhost:5000/api/contractors')
+        axios.get('http://localhost:8000/api/roads'),
+        axios.get('http://localhost:8000/api/contractors')
       ]);
       setStats({
         roads: roadsRes.data.count || 0,

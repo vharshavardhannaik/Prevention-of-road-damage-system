@@ -94,7 +94,7 @@ const ComplaintForm = ({ roadData }) => {
       };
 
       const response = await axios.post(
-        'http://localhost:5000/api/complaints',
+        'http://localhost:8000/api/complaints',
         complaintPayload
       );
 
@@ -102,7 +102,7 @@ const ComplaintForm = ({ roadData }) => {
       if (formData.contractorRating > 0 && roadData.contractorId) {
         try {
           await axios.post(
-            'http://localhost:5000/api/contractors/rate',
+            'http://localhost:8000/api/contractors/rate',
             {
               contractorId: roadData.contractorId,
               roadId: roadData.id,

@@ -6,6 +6,7 @@ import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import GovernmentDashboard from './components/GovernmentDashboard';
 import ContractorPerformanceDashboard from './components/ContractorPerformanceDashboard';
+import ContractorFeedback from './components/ContractorFeedback';
 import './index.css';
 
 // Protected route for admin
@@ -39,6 +40,8 @@ root.render(
         } 
       />
       <Route path="/contractor-dashboard" element={<ContractorPerformanceDashboard />} />
+      <Route path="/contractor/:contractorId/feedback" element={<ContractorFeedback />} />
+      <Route path="/contractor/:contractorId/feedback" element={<ContractorFeedback />} />
       <Route path="/*" element={<App />} />
     </Routes>
   </Router>
