@@ -25,7 +25,7 @@ const ContractorFeedback = () => {
   const fetchContractorInfo = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:8000/api/public/contractor/${contractorId}`);
+      const response = await axios.get(`http://localhost:5000/api/public/contractor/${contractorId}`);
       setContractor(response.data);
     } catch (error) {
       console.error('Error fetching contractor:', error);
@@ -48,7 +48,7 @@ const ContractorFeedback = () => {
 
     try {
       setRatingSubmitting(true);
-      await axios.post(`http://localhost:8000/api/public/contractor/${contractorId}/rating`, {
+      await axios.post(`http://localhost:5000/api/public/contractor/${contractorId}/rating`, {
         ratingValue: rating,
         comment: ratingComment
       });
@@ -78,7 +78,7 @@ const ContractorFeedback = () => {
 
     try {
       setComplaintSubmitting(true);
-      await axios.post(`http://localhost:8000/api/public/contractor/${contractorId}/complaint`, {
+      await axios.post(`http://localhost:5000/api/public/contractor/${contractorId}/complaint`, {
         description: complaintDescription,
         location: complaintLocation
       });

@@ -7,8 +7,8 @@ require('dotenv').config();
 
 const seedData = async () => {
   try {
-    // Sync database schema
-    await sequelize.sync({ alter: true });
+    // Sync database schema (force recreate to apply new columns safely in dev)
+    await sequelize.sync({ force: true });
     console.log('✓ Database synced');
 
     // Clear existing data
@@ -26,6 +26,9 @@ const seedData = async () => {
         name: 'BuildRight Infrastructure',
         email: 'buildright@construction.com',
         password: 'hashed_password_1', // In production, use bcrypt
+        age: 42,
+        adNo: '12345678',
+        licenseNo: 'LIC-2345678',
         currentRating: 4.8,
         totalComplaints: 2,
         totalProjects: 5
@@ -35,6 +38,9 @@ const seedData = async () => {
         name: 'RoadMasters Inc',
         email: 'roadmasters@construction.com',
         password: 'hashed_password_2',
+        age: 35,
+        adNo: '87654321',
+        licenseNo: 'LIC-9876543',
         currentRating: 3.2,
         totalComplaints: 15,
         totalProjects: 3
@@ -62,6 +68,9 @@ const seedData = async () => {
         name: 'Premium Infrastructure',
         email: 'premium@construction.com',
         password: 'hashed_password_5',
+        age: 38,
+        adNo: '11223344',
+        licenseNo: 'LIC-4455667',
         currentRating: 4.2,
         totalComplaints: 5,
         totalProjects: 3

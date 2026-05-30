@@ -65,6 +65,9 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
+# URL trailing slash setting
+APPEND_SLASH = False
+
 ROOT_URLCONF = 'smart_road_system.urls'
 
 TEMPLATES = [

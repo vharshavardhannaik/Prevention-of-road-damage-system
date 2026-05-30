@@ -7,6 +7,9 @@ import AdminDashboard from './components/AdminDashboard';
 import GovernmentDashboard from './components/GovernmentDashboard';
 import ContractorPerformanceDashboard from './components/ContractorPerformanceDashboard';
 import ContractorFeedback from './components/ContractorFeedback';
+import ContractorQRScanner from './components/ContractorQRScanner';
+import ContractorPublicProfile from './components/ContractorPublicProfile';
+import RoadReportPage from './components/RoadReportPage';
 import './index.css';
 
 // Protected route for admin
@@ -41,6 +44,9 @@ root.render(
       />
       <Route path="/contractor-dashboard" element={<ContractorPerformanceDashboard />} />
       <Route path="/contractor/:contractorId/feedback" element={<ContractorFeedback />} />
+      <Route path="/scan/contractor" element={<ContractorQRScanner />} />
+      <Route path="/contractor/:contractorId" element={<ContractorPublicProfile />} />
+      <Route path="/report/:roadId" element={<RoadReportPage />} />
       <Route path="/contractor/:contractorId/feedback" element={<ContractorFeedback />} />
       <Route path="/*" element={<App />} />
     </Routes>

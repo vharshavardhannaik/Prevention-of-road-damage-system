@@ -17,7 +17,7 @@ const ContractorDashboard = () => {
   const fetchContractors = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:8000/api/contractors?sortBy=${sortBy}&order=desc`);
+      const response = await axios.get(`http://localhost:5000/api/contractors?sortBy=${sortBy}&order=desc`);
       setContractors(response.data.contractors);
     } catch (error) {
       console.error('Error fetching contractors:', error);
@@ -28,7 +28,7 @@ const ContractorDashboard = () => {
 
   const handleGenerateQR = async (contractor) => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/contractors/${contractor.contractorId}/qr`);
+      const response = await axios.get(`http://localhost:5000/api/contractors/${contractor.contractorId}/qr`);
       setSelectedContractor({ ...contractor, qrCode: response.data.qrCode, qrUrl: response.data.qrUrl });
       setShowQRModal(true);
     } catch (error) {
@@ -40,7 +40,7 @@ const ContractorDashboard = () => {
   const handleGenerateAllQR = async () => {
     try {
       setGeneratingAll(true);
-      const response = await axios.post('http://localhost:8000/api/contractors/generate-all-qr');
+      const response = await axios.post('http://localhost:5000/api/contractors/generate-all-qr');
       alert(`Successfully generated QR codes for ${response.data.generated} contractors!`);
       fetchContractors();
     } catch (error) {

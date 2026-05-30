@@ -75,7 +75,12 @@ const AdminDashboard = () => {
 
   const fetchComplaints = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/complaints');
+      const token = getAuthToken();
+      const response = await axios.get('http://localhost:5000/api/complaints', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setComplaints(response.data.complaints || []);
     } catch (err) {
       console.error('Failed to fetch complaints:', err);
@@ -86,7 +91,12 @@ const AdminDashboard = () => {
     setLoading(true);
     setError(''); // Clear any previous errors
     try {
-      const response = await axios.get('http://localhost:8000/api/admin/roads');
+      const token = getAuthToken();
+      const response = await axios.get('http://localhost:5000/api/admin/roads', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       console.log('Fetched roads:', response.data);
       setRoads(response.data.roads || []);
       setError(''); // Clear error on success
@@ -102,7 +112,12 @@ const AdminDashboard = () => {
 
   const fetchContractors = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/contractors');
+      const token = getAuthToken();
+      const response = await axios.get('http://localhost:5000/api/contractors', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       setContractors(response.data.contractors);
     } catch (err) {
       console.error('Failed to fetch contractors:', err);
@@ -131,9 +146,15 @@ const AdminDashboard = () => {
     setSuccess('');
 
     try {
+      const token = getAuthToken();
       const response = await axios.post(
-        'http://localhost:8000/api/contractors',
-        contractorFormData
+        'http://localhost:5000/api/contractors',
+        contractorFormData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
 
       setSuccess('Contractor added successfully!');
@@ -164,7 +185,7 @@ const AdminDashboard = () => {
       if (editingId) {
         // Update existing road
         await axios.put(
-          `http://localhost:8000/api/admin/roads/${editingId}`,
+          `http://localhost:5000/api/admin/roads/${editingId}`,
           roadFormData,
           {
             headers: {
@@ -176,7 +197,7 @@ const AdminDashboard = () => {
       } else {
         // Create new road
         await axios.post(
-          'http://localhost:8000/api/admin/roads',
+          'http://localhost:5000/api/admin/roads',
           roadFormData,
           {
             headers: {
@@ -235,7 +256,7 @@ const AdminDashboard = () => {
     try {
       const token = getAuthToken();
       await axios.delete(
-        `http://localhost:8000/api/admin/roads/${deleteTarget}`,
+        `http://localhost:5000/api/admin/roads/${deleteTarget}`,
         {
           headers: {
             Authorization: `Bearer ${token}`

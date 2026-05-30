@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Contractor, RoadProject, Complaint, Rating } = require('../config/models');
 const { calculateContractorRating, getRiskLevel } = require('../utils/ratingCalculator');
+const QRCode = require('qrcode');
 
 /**
  * POST /api/contractors
@@ -446,3 +447,24 @@ function getRatingDistribution(ratings) {
 }
 
 module.exports = router;
+
+/**
+ * GET /api/contractors/:contractorId/qr
+ * Generate a QR code PNG that encodes a public URL to the contractor profile
+ */
+router.get('/:contractorId/qr', async (req, res) => {
+  try {
+    const { contractorId } = req.params;
+    const contractor = await Contractor.findOne({ where: { contractorId } });
+    if (!contractor) return res.status(404).send('Contractor not found');
+
+    const FRONTEND_URL = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host').split(':')[0]}:3000`;
+    const publicUrl = `${FRONTEND_URL}/contractor/${contractor.contractorId}`;
+    const qrBuffer = await QRCode.toBuffer(publicUrl, { type: 'png', width: 300 });
+    res.set('Content-Type', 'image/png');
+    res.send(qrBuffer);
+  } catch (err) {
+    console.error('QR generation error', err);
+    res.status(500).json({ error: 'Unable to generate QR' });
+  }
+});

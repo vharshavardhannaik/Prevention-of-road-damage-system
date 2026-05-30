@@ -21,6 +21,18 @@ module.exports = (sequelize) => {
       allowNull: false,
       unique: true
     },
+    age: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    adNo: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+    licenseNo: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     password: {
       type: DataTypes.STRING,
       allowNull: false

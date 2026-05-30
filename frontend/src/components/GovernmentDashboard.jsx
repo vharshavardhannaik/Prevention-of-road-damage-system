@@ -15,9 +15,18 @@ const GovernmentDashboard = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
+      const token = localStorage.getItem('adminToken');
       const [contractorsRes, complaintsRes] = await Promise.all([
-        axios.get('http://localhost:8000/api/contractors'),
-        axios.get('http://localhost:8000/api/complaints')
+        axios.get('http://localhost:5000/api/contractors', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }),
+        axios.get('http://localhost:5000/api/complaints', {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        })
       ]);
       setContractors(contractorsRes.data.contractors || []);
       setComplaints(complaintsRes.data.complaints || []);
